@@ -1380,6 +1380,135 @@ def saldo_awal():
     </html>
     """, options=options, rows=rows, success_msg=success_msg, error_msg=error_msg)
 
+@app.route("/transaksi")
+def transaksi_menu():
+    if not session.get("user_email"):
+        return redirect("/")
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Input Transaksi - BELUT.IN</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                font-family: 'Poppins', sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .container {
+                max-width: 900px;
+                width: 100%;
+                background: white;
+                padding: 50px;
+                border-radius: 20px;
+                box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            }
+            h2 {
+                color: #667eea;
+                text-align: center;
+                margin-bottom: 20px;
+                font-size: 36px;
+            }
+            .subtitle {
+                text-align: center;
+                color: #666;
+                margin-bottom: 50px;
+                font-size: 16px;
+            }
+            .menu-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 30px;
+                margin-bottom: 40px;
+            }
+            .menu-card {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 40px 30px;
+                border-radius: 15px;
+                text-align: center;
+                cursor: pointer;
+                transition: transform 0.3s, box-shadow 0.3s;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+                text-decoration: none;
+                color: white;
+            }
+            .menu-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            }
+            .menu-icon {
+                font-size: 60px;
+                margin-bottom: 20px;
+            }
+            .menu-title {
+                font-size: 24px;
+                font-weight: 700;
+                margin-bottom: 10px;
+            }
+            .menu-desc {
+                font-size: 14px;
+                opacity: 0.9;
+            }
+            .btn-back {
+                display: inline-block;
+                background: #667eea;
+                color: white;
+                padding: 12px 25px;
+                border-radius: 12px;
+                text-decoration: none;
+                font-weight: 600;
+                transition: 0.3s;
+            }
+            .btn-back:hover {
+                background: #764ba2;
+                transform: translateY(-2px);
+            }
+            .back-section {
+                text-align: center;
+                padding-top: 30px;
+                border-top: 2px solid #e2e8f0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>💼 Input Transaksi</h2>
+            <p class="subtitle">Pilih jenis transaksi yang ingin Anda input</p>
+            
+            <div class="menu-grid">
+                <a href="/transaksi/penjualan" class="menu-card">
+                    <div class="menu-icon">💰</div>
+                    <div class="menu-title">Penjualan</div>
+                    <div class="menu-desc">Input transaksi penjualan belut</div>
+                </a>
+                <a href="/transaksi/pembelian" class="menu-card">
+                    <div class="menu-icon">🛒</div>
+                    <div class="menu-title">Pembelian</div>
+                    <div class="menu-desc">Input transaksi pembelian</div>
+                </a>
+                <a href="/transaksi/lainnya" class="menu-card">
+                    <div class="menu-icon">💸</div>
+                    <div class="menu-title">Lainnya</div>
+                    <div class="menu-desc">Input transaksi lainnya</div>
+                </a>
+            </div>
+            
+            <div class="back-section">
+                <a href="/dashboard" class="btn-back">⬅ Kembali ke Dashboard</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    """)
+    
 @app.route("/transaksi/penjualan", methods=["GET", "POST"])
 def transaksi_penjualan():
     if not session.get("user_email"):
