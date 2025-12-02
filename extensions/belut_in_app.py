@@ -4,7 +4,7 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 from datetime import timedelta
 import resend
-import random, os, json, datetim
+import random, os, json, datetime
 
 # ---- LOAD ENV & FLASK APP ----
 load_dotenv()
