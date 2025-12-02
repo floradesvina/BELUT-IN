@@ -1,19 +1,20 @@
-# Pakai image Python yang ringan
+# Image dasar Python
 FROM python:3.11-slim
 
-# Biar Python tidak bikin cache .pyc dan log-nya langsung keluar
-ENV PYTHONDONTWRITEBYTECODE=1
+# Matikan buffering output Python
 ENV PYTHONUNBUFFERED=1
 
-# Semua kerja di folder /app di dalam container
+# Folder kerja di dalam container
 WORKDIR /app
 
-# Copy daftar dependency dulu, lalu install
-COPY requirements.txt ./
+# Copy requirements dari folder extensions ke /app
+COPY extensions/requirements.txt ./requirements.txt
+
+# Install semua dependency
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy semua source code ke dalam container
-COPY . .
+# Copy semua source code dari folder extensions ke /app
+COPY extensions/. .
 
-# Railway biasanya kasih env PORT, tapi kalau nggak ada pakai 8000
+# Jalankan app pakai gunicorn
 CMD gunicorn belut_in_app:app --bind 0.0.0.0:${PORT:-8000}
