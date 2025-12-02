@@ -1,18 +1,18 @@
-import pandas as pd
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template_string, request, redirect, session
 from supabase import create_client, Client
 from dotenv import load_dotenv
-from email.message import EmailMessage
 from datetime import timedelta
-import smtplib, ssl, random, os, json, datetime
+import resend
+import random, os, json, datetim
 
-# ---- SESSION SETUP ----
+# ---- LOAD ENV & FLASK APP ----
 load_dotenv()
+
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY") 
+# kalau SECRET_KEY di env tidak ada, fallback ke os.urandom
+app.secret_key = os.getenv("SECRET_KEY") or os.urandom(24)
 app.permanent_session_lifetime = timedelta(days=7)
-# ------------------------
 
 # =======================================
 # Fungsi Format Rupiah 
@@ -27,19 +27,34 @@ def rupiah_small(nominal):
 # ---------------------------
 # KONFIGURASI DASAR
 # ---------------------------
-load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-EMAIL_SENDER = os.getenv("EMAIL_SENDER")
-EMAIL_APP_PASSWORD = os.getenv("EMAIL_APP_PASSWORD")
+# Resend
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+resend.api_key = RESEND_API_KEY
 
-app = Flask(__name__)
-app.secret_key = os.urandom(24)
+# alamat pengirim email
+# bisa kamu isi dari env EMAIL_SENDER, kalau kosong pakai default Resend
+EMAIL_SENDER = os.getenv("EMAIL_SENDER") or "BELUT.IN <onboarding@resend.dev>"
+
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+def send_otp_email(email, otp):
+    try:
+        resend.Emails.send({
+            "from": EMAIL_SENDER,
+            "to": email,
+            "subject": "Kode OTP BELUT.IN",
+            "html": f"<p>Kode OTP kamu adalah <b>{otp}</b></p>",
+        })
+        return True
+    except Exception as e:
+        print("Error kirim OTP:", e)
+        return False
 
 # ---------------------------
 # TEMPLATE LOGIN PAGE (UPDATED)
@@ -912,26 +927,17 @@ def auth():
         if user["password"] != password:
             return render_template_string(login_page, message="Password salah.")
 
+        # Generate OTP
         otp = str(random.randint(100000, 999999))
         session["pending_email"] = email
         session["otp"] = otp
 
-        try:
-            msg = EmailMessage()
-            msg["Subject"] = "Kode OTP BELUT.IN"
-            msg["From"] = EMAIL_SENDER
-            msg["To"] = email
-            msg.set_content(f"Kode OTP kamu adalah {otp}")
-
-            context = ssl.create_default_context()
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-                server.login(EMAIL_SENDER, EMAIL_APP_PASSWORD)
-                server.send_message(msg)
-        except Exception as e:
-            print(f"Error sending email: {e}")
+        # Kirim OTP via Resend
+        if not send_otp_email(email, otp):
             return render_template_string(login_page, message="Error mengirim OTP.")
 
         return render_template_string(otp_page, message="OTP telah dikirim ke email!")
+
 
 @app.route("/verify_otp", methods=["POST"])
 def verify_otp():
@@ -1380,135 +1386,6 @@ def saldo_awal():
     </html>
     """, options=options, rows=rows, success_msg=success_msg, error_msg=error_msg)
 
-@app.route("/transaksi")
-def transaksi_menu():
-    if not session.get("user_email"):
-        return redirect("/")
-    
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Input Transaksi - BELUT.IN</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-        <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body {
-                font-family: 'Poppins', sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh;
-                padding: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .container {
-                max-width: 900px;
-                width: 100%;
-                background: white;
-                padding: 50px;
-                border-radius: 20px;
-                box-shadow: 0 15px 50px rgba(0,0,0,0.3);
-            }
-            h2 {
-                color: #667eea;
-                text-align: center;
-                margin-bottom: 20px;
-                font-size: 36px;
-            }
-            .subtitle {
-                text-align: center;
-                color: #666;
-                margin-bottom: 50px;
-                font-size: 16px;
-            }
-            .menu-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 30px;
-                margin-bottom: 40px;
-            }
-            .menu-card {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                padding: 40px 30px;
-                border-radius: 15px;
-                text-align: center;
-                cursor: pointer;
-                transition: transform 0.3s, box-shadow 0.3s;
-                box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-                text-decoration: none;
-                color: white;
-            }
-            .menu-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            }
-            .menu-icon {
-                font-size: 60px;
-                margin-bottom: 20px;
-            }
-            .menu-title {
-                font-size: 24px;
-                font-weight: 700;
-                margin-bottom: 10px;
-            }
-            .menu-desc {
-                font-size: 14px;
-                opacity: 0.9;
-            }
-            .btn-back {
-                display: inline-block;
-                background: #667eea;
-                color: white;
-                padding: 12px 25px;
-                border-radius: 12px;
-                text-decoration: none;
-                font-weight: 600;
-                transition: 0.3s;
-            }
-            .btn-back:hover {
-                background: #764ba2;
-                transform: translateY(-2px);
-            }
-            .back-section {
-                text-align: center;
-                padding-top: 30px;
-                border-top: 2px solid #e2e8f0;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h2>💼 Input Transaksi</h2>
-            <p class="subtitle">Pilih jenis transaksi yang ingin Anda input</p>
-            
-            <div class="menu-grid">
-                <a href="/transaksi/penjualan" class="menu-card">
-                    <div class="menu-icon">💰</div>
-                    <div class="menu-title">Penjualan</div>
-                    <div class="menu-desc">Input transaksi penjualan belut</div>
-                </a>
-                <a href="/transaksi/pembelian" class="menu-card">
-                    <div class="menu-icon">🛒</div>
-                    <div class="menu-title">Pembelian</div>
-                    <div class="menu-desc">Input transaksi pembelian</div>
-                </a>
-                <a href="/transaksi/lainnya" class="menu-card">
-                    <div class="menu-icon">💸</div>
-                    <div class="menu-title">Lainnya</div>
-                    <div class="menu-desc">Input transaksi lainnya</div>
-                </a>
-            </div>
-            
-            <div class="back-section">
-                <a href="/dashboard" class="btn-back">⬅ Kembali ke Dashboard</a>
-            </div>
-        </div>
-    </body>
-    </html>
-    """)
-    
 @app.route("/transaksi/penjualan", methods=["GET", "POST"])
 def transaksi_penjualan():
     if not session.get("user_email"):
