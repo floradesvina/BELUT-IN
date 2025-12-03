@@ -147,7 +147,7 @@ login_page = """
 <body>
     <div class="card">
         <img src="/static/logo_belutin.png" alt="BELUT.IN Logo">
-        <h2>🐍 BELUT.IN Login</h2>
+        <h2> BELUT.IN Login</h2>
         <form method="POST" action="/auth">
             <label for="action">Pilih Tindakan:</label>
             <select id="action" name="action">
@@ -775,7 +775,7 @@ dashboard_layout_modern = """
     </div>
     <div class="banner-left">
       <h1>Selamat Datang di BELUT.IN — Sistem Informasi Akuntansi Budidaya Belut Djong Java</h1>
-      <p>Platform akuntansi yang membantu mengelola produksi, persediaan, transaksi, dan laporan keuangan usaha budidaya belut. Ringkas, modern, dan siap pakai sejak.</p>
+      <p>Platform akuntansi yang membantu mengelola produksi, persediaan, transaksi, dan laporan keuangan usaha budidaya belut. Ringkas, modern, dan siap pakai.</p>
       <div class="welcome">Halo, <strong>{{ user }}</strong> · <span style="opacity:0.85">Kelola transaksi & laporan dengan cepat</span></div>
     </div>
     <div class="banner-img">
@@ -792,10 +792,6 @@ dashboard_layout_modern = """
       <div style="min-width:220px">
         <h2 style="margin:0;color:#1c3b5a">Dashboard</h2>
         <div class="welcome">Pilih menu untuk mulai bekerja</div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-        <div class="stat">Saldo Kas: {{ saldo_kas }}</div>
-        <div class="stat">Total Transaksi: {{ total_transaksi }}</div>
       </div>
     </div>
 
@@ -818,7 +814,7 @@ dashboard_layout_modern = """
           <div style="display:flex;justify-content:space-between;align-items:flex-start">
             <div>
               <div class="title">Input Saldo Awal</div>
-              <div class="desc">Masukkan saldo awal akun (Excel / manual).</div>
+              <div class="desc">Masukkan saldo awal akun (Manual).</div>
             </div>
             <div class="icon">📥</div>
           </div>
@@ -831,7 +827,7 @@ dashboard_layout_modern = """
           <div style="display:flex;justify-content:space-between;align-items:flex-start">
             <div>
               <div class="title">Input Transaksi</div>
-              <div class="desc">Catat penjualan & pembelian (Tunai / Kredit).</div>
+              <div class="desc">Catat penjualan & pembelian.</div>
             </div>
             <div class="icon">💸</div>
           </div>
@@ -1131,9 +1127,450 @@ def saldo_awal():
 
     return render_template_string("""
     <!DOCTYPE html>
+<html>
+<head>
+    <title>Saldo Awal - BELUT.IN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 1400px;
+                width: 95%;
+                margin: 40px auto;
+                background: white;
+                padding: 40px;
+                border-radius: 20px;
+                box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        }
+        h2 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 32px;
+        }
+        h3 {
+            color: #2d3748;
+            margin: 25px 0 20px 0;
+            font-size: 24px;
+            text-align: center;
+        }
+        .alert {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        .input-section {
+                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                padding: 30px;
+                border-radius: 15px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                margin: 0 auto 40px auto;
+                max-width: 700px;
+        }
+        .input-section h3 {
+            color: #2d3748;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 20px;
+        }
+        label {
+            display: block;
+            margin: 15px 0 8px 0;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #cbd5e0;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-top: 15px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .table-section {
+            text-align: center;
+            margin: 40px 0;
+        }
+        .table-section h3 {
+            margin-bottom: 25px;
+        }
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 0 auto;
+            max-width: 1200px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #2d3748;
+        }
+        tbody tr:hover {
+            background: #f7fafc;
+        }
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            width: auto;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-delete:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+        .bottom-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+        .btn-reset {
+            background: #dc3545;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+
+        }
+        .btn-reset:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+        .btn-back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+            display: inline-block;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+        }
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .center-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .separator {
+        border: none;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #667eea, transparent);
+        margin: 30px auto;
+        max-width: 1000px; /* DIPERLEBAR dari 800px */
+        }
+        .total-row {
+            background-color: #f8f9fa;
+            font-weight: 700;
+            border-top: 2px solid #667eea;
+        }
+        .total-row td {
+            padding: 15px;
+            font-size: 16px;
+        }
+        .balance-check {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+        .balanced {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .unbalanced {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>💰 Input Saldo Awal</h2>
+        
+        {% if success_msg %}
+            <div class="alert success">{{ success_msg }}</div>
+        {% endif %}
+        {% if error_msg %}
+            <div class="alert error">{{ error_msg }}</div>
+        {% endif %}
+        
+        <!-- FORM INPUT DI TENGAH -->
+        <div class="center-content">
+            <div class="input-section">
+                <h3>📝 Input Manual</h3>
+                <form method="POST">
+                    <label>Akun</label>
+                    <select name="kode" required>
+                        <option value="">-- Pilih Akun --</option>
+                        {{ options|safe }}
+                    </select>
+                    <label>Debit (Rp)</label>
+                    <input type="number" name="debit" step="0.01" value="0">
+                    <label>Kredit (Rp)</label>
+                    <input type="number" name="kredit" step="0.01" value="0">
+                    <button type="submit" class="btn-primary">💾 Simpan</button>
+                </form>
+            </div>
+        </div>
+
+        <h3>📋 Daftar Saldo Awal</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:15%;">Kode</th>
+                    <th style="width:40%;">Nama Akun</th>
+                    <th style="width:18%; text-align:right;">Debit</th>
+                    <th style="width:18%; text-align:right;">Kredit</th>
+                    <th style="width:9%; text-align:center;">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if rows %}
+                    {{ rows|safe }}
+                {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align:center; padding:30px; color:#999;">
+                            Belum ada data saldo awal. Silakan input manual.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="2" style="text-align:center; font-weight:700;">TOTAL</td>
+                    <td id="total-debit" style="text-align:right; font-weight:700;">Rp 0</td>
+                    <td id="total-kredit" style="text-align:right; font-weight:700;">Rp 0</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+        
+        <div id="balance-status" class="balance-check balanced" style="display:none;">
+            ✅ Debit dan Kredit Balance
+        </div>
+        <div id="unbalance-status" class="balance-check unbalanced" style="display:none;">
+            ⚠ Debit dan Kredit Tidak Balance
+        </div>
+        
+        <div class="bottom-actions">
+            <a href="/dashboard" class="btn-back">⬅ Kembali ke Dashboard</a>
+            
+            <form method="POST" style="display:inline;" onsubmit="return confirm('⚠ PERHATIAN!\\n\\nAnda akan menghapus SEMUA data saldo awal.\\nApakah Anda yakin?');">
+                <input type="hidden" name="action" value="reset_all">
+                <button type="submit" class="btn-reset">🗑 Reset Semua Data</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Fungsi untuk memformat angka sebagai mata uang Rupiah
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(angka);
+        }
+        
+        // Fungsi untuk mengurutkan data berdasarkan kode akun
+        function sortTableByAccountCode() {
+            const table = document.querySelector('table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Hanya urutkan jika ada data
+            if (rows.length > 0 && !rows[0].querySelector('td[colspan]')) {
+                // Urutkan baris berdasarkan kode akun
+                rows.sort((a, b) => {
+                    const codeA = a.querySelector('td:first-child').textContent;
+                    const codeB = b.querySelector('td:first-child').textContent;
+                    
+                    // Pisahkan kode menjadi bagian utama dan subkode
+                    const [mainA, subA] = codeA.split('-').map(Number);
+                    const [mainB, subB] = codeB.split('-').map(Number);
+                    
+                    // Urutkan berdasarkan bagian utama, lalu subkode
+                    if (mainA !== mainB) {
+                        return mainA - mainB;
+                    }
+                    return subA - subB;
+                });
+                
+                // Hapus semua baris dari tbody
+                while (tbody.firstChild) {
+                    tbody.removeChild(tbody.firstChild);
+                }
+                
+                // Tambahkan baris yang sudah diurutkan kembali ke tbody
+                rows.forEach(row => tbody.appendChild(row));
+            }
+        }
+        
+        // Fungsi untuk menghitung total debit dan kredit
+        function calculateTotals() {
+            const table = document.querySelector('table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            let totalDebit = 0;
+            let totalKredit = 0;
+            
+            // Hanya hitung jika ada data
+            if (rows.length > 0 && !rows[0].querySelector('td[colspan]')) {
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length >= 4) {
+                        // Ambil nilai debit (kolom ke-3)
+                        const debitCell = cells[2];
+                        const debitText = debitCell.textContent.trim();
+                        if (debitText && debitText !== 'Rp 0') {
+                            const debitValue = parseFloat(debitText.replace(/[^\d]/g, '')) || 0;
+                            totalDebit += debitValue;
+                        }
+                        
+                        // Ambil nilai kredit (kolom ke-4)
+                        const kreditCell = cells[3];
+                        const kreditText = kreditCell.textContent.trim();
+                        if (kreditText && kreditText !== 'Rp 0') {
+                            const kreditValue = parseFloat(kreditText.replace(/[^\d]/g, '')) || 0;
+                            totalKredit += kreditValue;
+                        }
+                    }
+                });
+            }
+            
+            // Update total di footer
+            document.getElementById('total-debit').textContent = formatRupiah(totalDebit);
+            document.getElementById('total-kredit').textContent = formatRupiah(totalKredit);
+            
+            // Tampilkan status keseimbangan
+            const balanceStatus = document.getElementById('balance-status');
+            const unbalanceStatus = document.getElementById('unbalance-status');
+            
+            if (totalDebit === totalKredit) {
+                balanceStatus.style.display = 'block';
+                unbalanceStatus.style.display = 'none';
+            } else {
+                balanceStatus.style.display = 'none';
+                unbalanceStatus.style.display = 'block';
+            }
+        }
+        
+        // Panggil fungsi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            sortTableByAccountCode();
+            calculateTotals();
+        });
+    </script>
+</body>
+</html>
+    """, options=options, rows=rows, success_msg=success_msg, error_msg=error_msg)
+
+@app.route("/transaksi")
+def transaksi_menu():
+    if not session.get("user_email"):
+        return redirect("/")
+    
+    return render_template_string("""
+    <!DOCTYPE html>
     <html>
     <head>
-        <title>Saldo Awal - BELUT.IN</title>
+        <title>Input Transaksi - BELUT.IN</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
         <style>
@@ -1143,248 +1580,115 @@ def saldo_awal():
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 min-height: 100vh;
                 padding: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
             .container {
-                max-width: 1400px;
-                margin: 40px auto;
+                max-width: 900px;
+                width: 100%;
                 background: white;
-                padding: 40px;
+                padding: 50px;
                 border-radius: 20px;
                 box-shadow: 0 15px 50px rgba(0,0,0,0.3);
             }
             h2 {
                 color: #667eea;
                 text-align: center;
-                margin-bottom: 30px;
-                font-size: 32px;
+                margin-bottom: 20px;
+                font-size: 36px;
             }
-            h3 {
-                color: #2d3748;
-                margin: 20px 0 15px 0;
-                font-size: 20px;
+            .subtitle {
+                text-align: center;
+                color: #666;
+                margin-bottom: 50px;
+                font-size: 16px;
             }
-            .alert {
-                padding: 15px;
-                margin: 15px 0;
-                border-radius: 8px;
-                font-weight: 600;
-            }
-            .success {
-                background: #d4edda;
-                color: #155724;
-                border-left: 4px solid #28a745;
-            }
-            .error {
-                background: #f8d7da;
-                color: #721c24;
-                border-left: 4px solid #dc3545;
-            }
-            .flex {
-                display: flex;
+            .menu-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
                 gap: 30px;
-                flex-wrap: wrap;
                 margin-bottom: 40px;
             }
-            .box {
-                flex: 1;
-                min-width: 300px;
-                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-                padding: 25px;
+            .menu-card {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 40px 30px;
                 border-radius: 15px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            }
-            .box h3 {
-                color: #2d3748;
-                margin-top: 0;
-                margin-bottom: 20px;
-                font-size: 18px;
-            }
-            label {
-                display: block;
-                margin: 12px 0 5px 0;
-                font-weight: 600;
-                color: #2d3748;
-            }
-            input, select {
-                width: 100%;
-                padding: 12px;
-                margin: 8px 0;
-                border-radius: 8px;
-                border: 1px solid #cbd5e0;
-                font-family: 'Poppins', sans-serif;
-            }
-            input:focus, select:focus {
-                outline: none;
-                border-color: #667eea;
-                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            }
-            button {
-                width: 100%;
-                padding: 12px;
-                border: none;
-                border-radius: 8px;
+                text-align: center;
                 cursor: pointer;
-                font-weight: 600;
-                font-family: 'Poppins', sans-serif;
-                transition: 0.3s;
-            }
-            .btn-primary {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                margin-top: 10px;
-            }
-            .btn-primary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            }
-            .info-text {
-                font-size: 12px;
-                color: #4a5568;
-                margin-top: 10px;
-                font-style: italic;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin: 20px 0;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                border-radius: 12px;
-                overflow: hidden;
-            }
-            thead {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-            }
-            th {
-                padding: 15px;
-                text-align: left;
-                font-weight: 600;
-                font-size: 14px;
-                text-transform: uppercase;
-            }
-            td {
-                padding: 12px 15px;
-                border-bottom: 1px solid #e2e8f0;
-                color: #2d3748;
-            }
-            tbody tr:hover {
-                background: #f7fafc;
-            }
-            .btn-delete {
-                background: #dc3545;
-                color: white;
-                padding: 6px 12px;
-                border-radius: 6px;
-                font-size: 14px;
-                width: auto;
-            }
-            .btn-delete:hover {
-                background: #c82333;
-                transform: scale(1.05);
-            }
-            .bottom-actions {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-top: 30px;
-                padding-top: 20px;
-                border-top: 2px solid #e2e8f0;
-            }
-            .btn-reset {
-                background: #dc3545;
-                color: white;
-                padding: 12px 25px;
-                border-radius: 12px;
+                transition: transform 0.3s, box-shadow 0.3s;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.1);
                 text-decoration: none;
-                font-weight: 600;
-                transition: 0.3s;
-                display: inline-block;
-                border: none;
-                cursor: pointer;
+                color: white;
             }
-            .btn-reset:hover {
-                background: #c82333;
-                transform: translateY(-2px);
+            .menu-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            }
+            .menu-icon {
+                font-size: 60px;
+                margin-bottom: 20px;
+            }
+            .menu-title {
+                font-size: 24px;
+                font-weight: 700;
+                margin-bottom: 10px;
+            }
+            .menu-desc {
+                font-size: 14px;
+                opacity: 0.9;
             }
             .btn-back {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                display: inline-block;
+                background: #667eea;
                 color: white;
                 padding: 12px 25px;
                 border-radius: 12px;
                 text-decoration: none;
                 font-weight: 600;
                 transition: 0.3s;
-                display: inline-block;
             }
             .btn-back:hover {
+                background: #764ba2;
                 transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            }
+            .back-section {
+                text-align: center;
+                padding-top: 30px;
+                border-top: 2px solid #e2e8f0;
             }
         </style>
     </head>
     <body>
         <div class="container">
-            <h2>💰 Input Saldo Awal</h2>
+            <h2>💼 Input Transaksi</h2>
+            <p class="subtitle">Pilih jenis transaksi yang ingin Anda input</p>
             
-            {% if success_msg %}
-                <div class="alert success">{{ success_msg }}</div>
-            {% endif %}
-            {% if error_msg %}
-                <div class="alert error">{{ error_msg }}</div>
-            {% endif %}
+            <div class="menu-grid">
+                <a href="/transaksi/penjualan" class="menu-card">
+                    <div class="menu-icon">💰</div>
+                    <div class="menu-title">Penjualan</div>
+                    <div class="menu-desc">Input transaksi penjualan belut</div>
+                </a>
+                <a href="/transaksi/pembelian" class="menu-card">
+                    <div class="menu-icon">🛒</div>
+                    <div class="menu-title">Pembelian</div>
+                    <div class="menu-desc">Input transaksi pembelian</div>
+                </a>
+                <a href="/transaksi/lainnya" class="menu-card">
+                    <div class="menu-icon">💸</div>
+                    <div class="menu-title">Lainnya</div>
+                    <div class="menu-desc">Input transaksi lainnya</div>
+                </a>
+            </div>
             
-            <div class="flex">
-                <div class="box">
-                    <h3>📝 Input Manual</h3>
-                    <form method="POST">
-                        <label>Akun</label>
-                        <select name="kode" required>
-                            <option value="">-- Pilih Akun --</option>
-                            {{ options|safe }}
-                        </select>
-                        <label>Debit (Rp)</label>
-                        <input type="number" name="debit" step="0.01" value="0">
-                        <label>Kredit (Rp)</label>
-                        <input type="number" name="kredit" step="0.01" value="0">
-                        <button type="submit" class="btn-primary">💾 Simpan</button>
-                    </form>
-                </div>
-            <h3>📋 Daftar Saldo Awal</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width:15%;">Kode</th>
-                        <th style="width:40%;">Nama Akun</th>
-                        <th style="width:18%; text-align:right;">Debit</th>
-                        <th style="width:18%; text-align:right;">Kredit</th>
-                        <th style="width:9%; text-align:center;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if rows %}
-                        {{ rows|safe }}
-                    {% else %}
-                        <tr>
-                            <td colspan="5" style="text-align:center; padding:30px; color:#999;">
-                                Belum ada data saldo awal. Silakan input manual atau upload Excel.
-                            </td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-            
-            <div class="bottom-actions">
+            <div class="back-section">
                 <a href="/dashboard" class="btn-back">⬅ Kembali ke Dashboard</a>
-                
-                <form method="POST" style="display:inline;" onsubmit="return confirm('⚠ PERHATIAN!\\n\\nAnda akan menghapus SEMUA data saldo awal.\\nApakah Anda yakin?');">
-                    <input type="hidden" name="action" value="reset_all">
-                    <button type="submit" class="btn-reset">🗑 Reset Semua Data</button>
-                </form>
             </div>
         </div>
     </body>
     </html>
-    """, options=options, rows=rows, success_msg=success_msg, error_msg=error_msg)
+    """)
 
 @app.route("/transaksi/penjualan", methods=["GET", "POST"])
 def transaksi_penjualan():
@@ -2505,11 +2809,6 @@ def jurnal():
         <div class="container">
             <h2>📘 Jurnal Umum</h2>
 
-            <div class="info-box">
-                <p><strong>Total Transaksi:</strong> {{ jumlah_entri }} entri</p>
-                <p><strong>Total Debit:</strong> {{ total_debit }} | <strong>Total Kredit:</strong> {{ total_kredit }}</strong></p>
-            </div>
-
             {{ tabel_html|safe }}
 
             <div class="back-section">
@@ -2659,11 +2958,6 @@ def neraca_saldo():
     <body>
         <div class="container">
             <h2>⚖ Neraca Saldo</h2>
-            
-            <div class="info-box">
-                💡 <strong>Info:</strong> Neraca saldo menampilkan saldo akhir setiap akun (Debit - Kredit).
-                Total Debit harus sama dengan Total Kredit untuk memastikan keseimbangan pembukuan.
-            </div>
             
             <table>
                 <thead>
@@ -4112,6 +4406,7 @@ def laporan_posisi_keuangan():
     modal_akhir_fmt=rupiah_small(modal_akhir),
     total_ekuitas_fmt=rupiah_small(total_ekuitas),
     total_kewajiban_ekuitas_fmt=rupiah_small(total_kewajiban_ekuitas))
+
 @app.route("/laporan_arus_kas")
 def laporan_arus_kas():
     if not session.get("user_email"):
@@ -4186,19 +4481,16 @@ def laporan_arus_kas():
                 # 3. Pembayaran Perlengkapan (Kas Kredit + Perlengkapan Aset 1-1600 Debit)
                 if kas_kredit > 0 and akun_code == '1-1600' and other_debit > 0:
                     pembayaran_perlengkapan += kas_kredit
-                    print(f"DEBUG GJ: Found perlengkapan - Kas Kredit Rp {kas_kredit}, Akun {akun_code}, Debit Rp {other_debit}")
                     continue
                 
                 # ATAU Pembayaran Perlengkapan (Kas Kredit + Beban Perlengkapan 6-1200 Debit)
                 if kas_kredit > 0 and akun_code == '6-1200' and other_debit > 0:
                     pembayaran_perlengkapan += kas_kredit
-                    print(f"DEBUG GJ: Found beban perlengkapan - Kas Kredit Rp {kas_kredit}, Akun {akun_code}, Debit Rp {other_debit}")
                     continue
                 
                 # 4. Pembayaran Listrik dan Air (Kas Kredit + Beban Listrik 6-1100)
                 if kas_kredit > 0 and akun_code == '6-1100' and other_debit > 0:
                     pembayaran_listrik_air += kas_kredit
-                    print(f"DEBUG GJ: Found listrik air - Kas Kredit Rp {kas_kredit}, Akun {akun_code}, Debit Rp {other_debit}")
                     continue
                 
                 # 5. Pembayaran Beban Operasi Lainnya (Kas Kredit + Beban 6- lainnya)
@@ -4284,19 +4576,16 @@ def laporan_arus_kas():
                     # Pembayaran Perlengkapan (cari yang debit ke aset perlengkapan 1-1600)
                     if kas_kredit > 0 and akun_code == '1-1600' and other_debit > 0:
                         pembayaran_perlengkapan += kas_kredit
-                        print(f"DEBUG: Found perlengkapan from transactions - Rp {kas_kredit}")
                         continue
                     
                     # ATAU Pembayaran Perlengkapan (debit ke beban perlengkapan 6-1200)
                     if kas_kredit > 0 and akun_code == '6-1200' and other_debit > 0:
                         pembayaran_perlengkapan += kas_kredit
-                        print(f"DEBUG: Found beban perlengkapan from transactions - Rp {kas_kredit}")
                         continue
                     
                     # Pembayaran Listrik dan Air
                     if kas_kredit > 0 and akun_code == '6-1100' and other_debit > 0:
                         pembayaran_listrik_air += kas_kredit
-                        print(f"DEBUG: Found listrik air from transactions - Rp {kas_kredit}")
                         continue
                     
                     # Beban operasi lainnya
@@ -4348,19 +4637,19 @@ def laporan_arus_kas():
     arus_kas_operasi_rows = f"""
     <tr>
         <td style='padding-left:20px;'>Penerimaan dari pelanggan</td>
-        <td style='text-align:right;'>Rp {rupiah_small(penerimaan_pelanggan) if penerimaan_pelanggan > 0 else '-'}</td>
+        <td style='text-align:right;'>{rupiah_small(penerimaan_pelanggan) if penerimaan_pelanggan > 0 else 'Rp -'}</td>
     </tr>
     <tr>
         <td style='padding-left:20px;'>Pembelian pakan belut</td>
-        <td style='text-align:right;'>-Rp {rupiah_small(pembayaran_pemasok) if pembayaran_pemasok > 0 else '-'}</td>
+        <td style='text-align:right;'>-{rupiah_small(pembayaran_pemasok) if pembayaran_pemasok > 0 else 'Rp -'}</td>
     </tr>
     <tr>
         <td style='padding-left:20px;'>Pembelian perlengkapan</td>
-        <td style='text-align:right;'>-Rp {rupiah_small(pembayaran_perlengkapan) if pembayaran_perlengkapan > 0 else '-'}</td>
+        <td style='text-align:right;'>-{rupiah_small(pembayaran_perlengkapan) if pembayaran_perlengkapan > 0 else 'Rp -'}</td>
     </tr>
     <tr>
         <td style='padding-left:20px;'>Beban listrik dan air</td>
-        <td style='text-align:right;'>-Rp {rupiah_small(pembayaran_listrik_air) if pembayaran_listrik_air > 0 else '-'}</td>
+        <td style='text-align:right;'>-{rupiah_small(pembayaran_listrik_air) if pembayaran_listrik_air > 0 else 'Rp -'}</td>
     </tr>
     """
     
@@ -4369,36 +4658,35 @@ def laporan_arus_kas():
         arus_kas_operasi_rows += f"""
     <tr>
         <td style='padding-left:20px;'>Beban operasional lainnya</td>
-        <td style='text-align:right;'>-Rp {rupiah_small(pembayaran_beban_lain)}</td>
+        <td style='text-align:right;'>-{rupiah_small(pembayaran_beban_lain)}</td>
     </tr>
     """
     
+    # Selalu tampilkan bagian investasi, meskipun kosong
     arus_kas_investasi_rows = ""
     if pembelian_aset_tetap > 0 or penjualan_aset_tetap > 0:
         if pembelian_aset_tetap > 0:
             arus_kas_investasi_rows += f"""
             <tr>
                 <td style='padding-left:20px;'>Pembelian Aset Tetap</td>
-                <td style='text-align:right;'>-Rp {rupiah_small(pembelian_aset_tetap)}</td>
+                <td style='text-align:right;'>-{rupiah_small(pembelian_aset_tetap)}</td>
             </tr>
             """
         if penjualan_aset_tetap > 0:
             arus_kas_investasi_rows += f"""
             <tr>
                 <td style='padding-left:20px;'>Penjualan Aset Tetap</td>
-                <td style='text-align:right;'>Rp {rupiah_small(penjualan_aset_tetap)}</td>
+                <td style='text-align:right;'>{rupiah_small(penjualan_aset_tetap)}</td>
             </tr>
             """
     
-    if not arus_kas_investasi_rows:
-        arus_kas_investasi_rows = ""
-    
+    # Selalu tampilkan bagian pendanaan, meskipun kosong
     arus_kas_pendanaan_rows = ""
     if penerimaan_pinjaman > 0:
         arus_kas_pendanaan_rows += f"""
         <tr>
             <td style='padding-left:20px;'>Penerimaan dari Pinjaman</td>
-            <td style='text-align:right;'>Rp {rupiah_small(penerimaan_pinjaman)}</td>
+            <td style='text-align:right;'>{rupiah_small(penerimaan_pinjaman)}</td>
         </tr>
         """
     
@@ -4406,7 +4694,7 @@ def laporan_arus_kas():
         arus_kas_pendanaan_rows += f"""
         <tr>
             <td style='padding-left:20px;'>Tambahan Modal</td>
-            <td style='text-align:right;'>Rp {rupiah_small(tambahan_modal)}</td>
+            <td style='text-align:right;'>{rupiah_small(tambahan_modal)}</td>
         </tr>
         """
     
@@ -4414,7 +4702,7 @@ def laporan_arus_kas():
         arus_kas_pendanaan_rows += f"""
         <tr>
             <td style='padding-left:20px;'>Pembayaran Pinjaman</td>
-            <td style='text-align:right;'>-Rp {rupiah_small(pembayaran_pinjaman)}</td>
+            <td style='text-align:right;'>-{rupiah_small(pembayaran_pinjaman)}</td>
         </tr>
         """
     
@@ -4422,219 +4710,227 @@ def laporan_arus_kas():
         arus_kas_pendanaan_rows += f"""
         <tr>
             <td style='padding-left:20px;'>Pengambilan prive</td>
-            <td style='text-align:right;'>-Rp {rupiah_small(pengambilan_prive)}</td>
+            <td style='text-align:right;'>-{rupiah_small(pengambilan_prive)}</td>
         </tr>
         """
-    
-    if not arus_kas_pendanaan_rows:
-        arus_kas_pendanaan_rows = ""
+
+    # Format Kas Bersih dengan tanda minus yang benar
+    def format_kas_bersih(nilai):
+        if nilai == 0:
+            return 'Rp -'
+        elif nilai < 0:
+            return f"-{rupiah_small(abs(nilai))}"
+        else:
+            return rupiah_small(nilai)
 
     return render_template_string("""
     <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Laporan Arus Kas - BELUT.IN</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-        <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { 
-                font-family: 'Poppins', sans-serif; 
-                background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); 
-                min-height: 100vh; 
-                padding: 20px; 
-            }
-            .container { 
-                max-width: 1000px; 
-                margin: 40px auto; 
-                background: white; 
-                padding: 40px; 
-                border-radius: 20px; 
-                box-shadow: 0 15px 50px rgba(0,0,0,0.3); 
-            }
-            h2 { 
-                color: #0284c7; 
-                text-align: center; 
-                margin-bottom: 10px; 
-                font-size: 32px; 
-            }
-            .company-info { 
-                text-align: center; 
-                color: #2d3748; 
-                margin-bottom: 30px; 
-            }
-            .company-info p { 
-                margin: 5px 0; 
-                font-size: 14px; 
-            }
-            .company-info .title { 
-                font-weight: 700; 
-                font-size: 16px; 
-            }
-            .info-badge { 
-                background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); 
-                padding: 15px; 
-                border-radius: 10px; 
-                text-align: center; 
-                margin: 20px 0; 
-                color: #0c4a6e; 
-                font-weight: 600; 
-                border-left: 4px solid #0284c7; 
-            }
-            table { 
-                width: 100%; 
-                border-collapse: collapse; 
-                margin: 20px 0; 
-                background: white; 
-                border-radius: 12px; 
-                overflow: hidden; 
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            }
-            tr { 
-                border-bottom: 1px solid #e2e8f0; 
-            }
-            td { 
-                padding: 12px 15px; 
-                color: #2d3748; 
-            }
-            .section-header { 
-                background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); 
-                color: white; 
-                font-weight: 700; 
-                font-size: 14px; 
-                padding: 15px !important; 
-                text-transform: uppercase; 
-            }
-            .subsection-header {
-                background: #f0f9ff;
-                font-weight: 600;
-                color: #075985;
-                font-size: 13px;
-            }
-            .total-row { 
-                background: #e0f2fe; 
-                font-weight: 700; 
-                font-size: 15px; 
-                border-top: 2px solid #0284c7; 
-            }
-            .summary-row {
-                background: #f8fafc;
-                font-weight: 600;
-                font-size: 15px;
-            }
-            .grand-total { 
-                background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); 
-                font-size: 18px; 
-                border-top: 3px solid #0369a1; 
-                font-weight: 700; 
-                color: white; 
-            }
-            .back-section { 
-                text-align: center; 
-                margin-top: 30px; 
-                padding-top: 20px; 
-                border-top: 2px solid #e2e8f0; 
-            }
-            .back-section a, .btn-print { 
-                display: inline-block; 
-                padding: 12px 30px; 
-                background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); 
-                color: white; 
-                text-decoration: none; 
-                border-radius: 25px; 
-                font-weight: 600; 
-                transition: transform 0.3s; 
-                box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3); 
-                border: none;
-                cursor: pointer;
-                margin: 5px;
-            }
-            .back-section a:hover, .btn-print:hover { 
-                transform: translateY(-2px); 
-                box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4); 
-            }
-            @media print {
-                .no-print { display: none; }
-                body { background: white; padding: 0; }
-                .container { box-shadow: none; }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h2>💵 Laporan Arus Kas</h2>
-            
-            <div class="company-info">
-                <p class="title">BELUT.IN</p>
-                <p class="title">LAPORAN ARUS KAS</p>
-                <p>31 Desember 2025</p>
-            </div>
-            
-            <table>
-                <tr class="section-header">
-                    <td colspan="2">ARUS KAS dari AKTIVITAS OPERASI</td>
-                </tr>
-                {{ arus_kas_operasi_rows|safe }}
-                <tr class="total-row">
-                    <td><strong>Kas Bersih dari Aktivitas Operasi</strong></td>
-                    <td style="text-align:right;"><strong>Rp {{ kas_bersih_operasi_str }}</strong></td>
-                </tr>
-                
-                {% if arus_kas_investasi_rows %}
-                <tr style="height:10px;"><td colspan="2"></td></tr>
-                <tr class="section-header">
-                    <td colspan="2">ARUS KAS dari AKTIVITAS INVESTASI</td>
-                </tr>
-                {{ arus_kas_investasi_rows|safe }}
-                <tr class="total-row">
-                    <td><strong>Kas Bersih dari Aktivitas Investasi</strong></td>
-                    <td style="text-align:right;"><strong>Rp {{ kas_bersih_investasi_str }}</strong></td>
-                </tr>
-                {% endif %}
-                
-                {% if arus_kas_pendanaan_rows %}
-                <tr style="height:10px;"><td colspan="2"></td></tr>
-                <tr class="section-header">
-                    <td colspan="2">ARUS KAS dari AKTIVITAS PENDANAAN</td>
-                </tr>
-                {{ arus_kas_pendanaan_rows|safe }}
-                <tr class="total-row">
-                    <td><strong>Kas Bersih dari Aktivitas Pendanaan</strong></td>
-                    <td style="text-align:right;"><strong>Rp {{ kas_bersih_pendanaan_str }}</strong></td>
-                </tr>
-                {% endif %}
-                
-                <tr style="height:15px;"><td colspan="2"></td></tr>
-                
-                <tr class="summary-row" style="border-top:2px solid #667eea;">
-                    <td><strong>Kenaikan Kas</strong></td>
-                    <td style="text-align:right;"><strong>Rp {{ kenaikan_kas_str }}</strong></td>
-                </tr>
-                <tr class="summary-row">
-                    <td><strong>Saldo Kas Awal 1 Desember 2025</strong></td>
-                    <td style="text-align:right;"><strong>Rp {{ saldo_kas_awal_str }}</strong></td>
-                </tr>
-                <tr class="grand-total">
-                    <td><strong>Saldo Kas Akhir 31 Desember 2025</strong></td>
-                    <td style="text-align:right;"><strong>Rp {{ saldo_kas_akhir_str }}</strong></td>
-                </tr>
-            </table>
-            
-            <div class="back-section no-print">
-                <button onclick="window.print()" class="btn-print">🖨 Print Laporan</button>
-                <a href="/laporan">⬅ Kembali ke Menu Laporan</a>
-            </div>
+<html>
+<head>
+    <title>Laporan Arus Kas - BELUT.IN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            min-height: 100vh; 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: 40px auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3); 
+        }
+        h2 { 
+            color: #667eea; 
+            text-align: center; 
+            margin-bottom: 10px; 
+            font-size: 32px; 
+        }
+        .company-info { 
+            text-align: center; 
+            color: #2d3748; 
+            margin-bottom: 30px; 
+        }
+        .company-info p { 
+            margin: 5px 0; 
+            font-size: 14px; 
+        }
+        .company-info .title { 
+            font-weight: 700; 
+            font-size: 16px; 
+        }
+        .info-badge { 
+            background: linear-gradient(135deg, #e9d8fd 0%, #d6bcfa 100%); 
+            padding: 15px; 
+            border-radius: 10px; 
+            text-align: center; 
+            margin: 20px 0; 
+            color: #553c9a; 
+            font-weight: 600; 
+            border-left: 4px solid #805ad5; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 20px 0; 
+            background: white; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+        tr { 
+            border-bottom: 1px solid #e2e8f0; 
+        }
+        td { 
+            padding: 12px 15px; 
+            color: #2d3748; 
+        }
+        .section-header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            font-weight: 700; 
+            font-size: 14px; 
+            padding: 15px !important; 
+            text-transform: uppercase; 
+        }
+        .subsection-header {
+            background: #faf5ff;
+            font-weight: 600;
+            color: #6b46c1;
+            font-size: 13px;
+        }
+        .total-row { 
+            background: #e9d8fd; 
+            font-weight: 700; 
+            font-size: 15px; 
+            border-top: 2px solid #805ad5; 
+        }
+        .summary-row {
+            background: #f8fafc;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .grand-total { 
+            background: #667eea; /* Warna biru solid senada dengan header */
+            font-size: 18px; 
+            border-top: 3px solid #5a6fd8; 
+            font-weight: 700; 
+            color: white; 
+        }
+        .back-section { 
+            text-align: center; 
+            margin-top: 30px; 
+            padding-top: 20px; 
+            border-top: 2px solid #e2e8f0; 
+        }
+        .back-section a, .btn-print { 
+            display: inline-block; 
+            padding: 12px 30px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 25px; 
+            font-weight: 600; 
+            transition: transform 0.3s; 
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); 
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .back-section a:hover, .btn-print:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); 
+        }
+        @media print {
+            .no-print { display: none; }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>💵 Laporan Arus Kas</h2>
+        
+        <div class="company-info">
+            <p class="title">BELUT.IN</p>
+            <p class="title">LAPORAN ARUS KAS</p>
+            <p>31 Desember 2025</p>
         </div>
-    </body>
-    </html>
+        
+        <table>
+            <tr class="section-header">
+                <td colspan="2">ARUS KAS dari AKTIVITAS OPERASI</td>
+            </tr>
+            {{ arus_kas_operasi_rows|safe }}
+            <tr class="total-row">
+                <td><strong>Kas Bersih dari Aktivitas Operasi</strong></td>
+                <td style="text-align:right;"><strong>{{ kas_bersih_operasi_str }}</strong></td>
+            </tr>
+            
+            <!-- Selalu tampilkan bagian INVESTASI -->
+            <tr style="height:10px;"><td colspan="2"></td></tr>
+            <tr class="section-header">
+                <td colspan="2">ARUS KAS dari AKTIVITAS INVESTASI</td>
+            </tr>
+            {% if arus_kas_investasi_rows %}
+                {{ arus_kas_investasi_rows|safe }}
+            {% endif %}
+            <tr class="total-row">
+                <td><strong>Kas Bersih dari Aktivitas Investasi</strong></td>
+                <td style="text-align:right;"><strong>{{ kas_bersih_investasi_str }}</strong></td>
+            </tr>
+            
+            <!-- Selalu tampilkan bagian PENDANAAN -->
+            <tr style="height:10px;"><td colspan="2"></td></tr>
+            <tr class="section-header">
+                <td colspan="2">ARUS KAS dari AKTIVITAS PENDANAAN</td>
+            </tr>
+            {% if arus_kas_pendanaan_rows %}
+                {{ arus_kas_pendanaan_rows|safe }}
+            {% endif %}
+            <tr class="total-row">
+                <td><strong>Kas Bersih dari Aktivitas Pendanaan</strong></td>
+                <td style="text-align:right;"><strong>{{ kas_bersih_pendanaan_str }}</strong></td>
+            </tr>
+            
+            <tr style="height:15px;"><td colspan="2"></td></tr>
+            
+            <tr class="summary-row" style="border-top:2px solid #667eea;">
+                <td><strong>Kenaikan Kas</strong></td>
+                <td style="text-align:right;"><strong>{{ kenaikan_kas_str }}</strong></td>
+            </tr>
+            <tr class="summary-row">
+                <td><strong>Saldo Kas Awal 1 Desember 2025</strong></td>
+                <td style="text-align:right;"><strong>{{ saldo_kas_awal_str }}</strong></td>
+            </tr>
+            <tr class="grand-total">
+                <td><strong>Saldo Kas Akhir 31 Desember 2025</strong></td>
+                <td style="text-align:right;"><strong>{{ saldo_kas_akhir_str }}</strong></td>
+            </tr>
+        </table>
+        
+        <div class="back-section no-print">
+            <button onclick="window.print()" class="btn-print">🖨 Print Laporan</button>
+            <a href="/laporan">⬅ Kembali ke Menu Laporan</a>
+        </div>
+    </div>
+</body>
+</html>
     """,
     arus_kas_operasi_rows=arus_kas_operasi_rows,
     arus_kas_investasi_rows=arus_kas_investasi_rows,
     arus_kas_pendanaan_rows=arus_kas_pendanaan_rows,
-    kas_bersih_operasi_str=rupiah_small(kas_bersih_operasi),
-    kas_bersih_investasi_str=rupiah_small(abs(kas_bersih_investasi)) if kas_bersih_investasi != 0 else '-',
-    kas_bersih_pendanaan_str=rupiah_small(abs(kas_bersih_pendanaan)) if kas_bersih_pendanaan != 0 else '-',
-    kenaikan_kas_str=rupiah_small(kenaikan_kas),
+    kas_bersih_operasi_str=format_kas_bersih(kas_bersih_operasi),
+    kas_bersih_investasi_str=format_kas_bersih(kas_bersih_investasi),
+    kas_bersih_pendanaan_str=format_kas_bersih(kas_bersih_pendanaan),
+    kenaikan_kas_str=format_kas_bersih(kenaikan_kas),
     saldo_kas_awal_str=rupiah_small(saldo_kas_awal),
     saldo_kas_akhir_str=rupiah_small(saldo_kas_akhir))
 
@@ -6895,7 +7191,6 @@ def neraca_saldo_penutup():
             <div class="info-box">
                 <p><strong>BELUT.IN - NERACA SALDO SETELAH PENUTUP</strong></p>
                 <p>Per 31 Desember 2025</p>
-                <p style="font-style:italic; margin-top:10px;">💡 Hanya menampilkan akun neraca (Aset, Liabilitas, dan Modal setelah penutupan)</p>
             </div>
 
             <table>

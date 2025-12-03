@@ -1,2 +1,3 @@
-ms-python.* 
-.env 
+ms-python.*
+.env
+node_modules/
