@@ -2261,11 +2261,6 @@ def transaksi_lainnya():
             <div class="alert error">{{ error_msg }}</div>
             {% endif %}
             
-            <div class="info-box">
-                ⚠ <strong>Perhatian:</strong> Anda perlu menentukan akun Debit dan Kredit secara manual. 
-                Pastikan sudah memahami prinsip jurnal akuntansi. Akun Kas, Kas di Bank, dan Piutang Dagang tersedia di dropdown.
-            </div>
-            
             <form method="POST">
                 <label>Tanggal *</label>
                 <input type="date" name="tanggal" required>
@@ -6454,16 +6449,6 @@ def buku_besar():
                         <td style="text-align:right;"><strong>{rupiah_small(total_debit_jpt) if total_debit_jpt > 0 else ''}</strong></td>
                         <td style="text-align:right;"><strong>{rupiah_small(total_kredit_jpt) if total_kredit_jpt > 0 else ''}</strong></td>
                         <td style="text-align:right;"><strong>{rupiah_small(abs(saldo))}</strong></td>
-                    </tr>
-            """
-        
-        # Jika tidak ada transaksi sama sekali
-        if no_transaksi == 1:
-            html_output += f"""
-                    <tr>
-                        <td colspan="7" style="text-align:center; font-style:italic; color:#666; padding:15px;">
-                            <strong>Tidak ada transaksi untuk akun ini</strong>
-                        </td>
                     </tr>
             """
         
